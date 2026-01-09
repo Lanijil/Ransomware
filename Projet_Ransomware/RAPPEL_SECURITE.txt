@@ -1,0 +1,20 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                    ⚠️  RAPPEL DE SÉCURITÉ ⚠️                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+1. Cette VM est configurée pour ISOLER le ransomware éducatif
+2. N'exécutez JAMAIS le code en dehors de /vagrant/TP/test_files/ ou TP/sandbox/
+3. La VM n'a PAS accès à Internet (sécurité)
+4. Les dossiers importants du système sont protégés
+
+ZONES AUTORISÉES :
+  ✓ /vagrant/TP/test_files/     (7 fichiers de test rapides)
+  ✓ /vagrant/TP/sandbox/         (~50 fichiers de test complets)
+  ✓ /tmp/                        (fichiers temporaires)
+
+ZONES INTERDITES :
+  ✗ /home/vagrant/ (hors TP)
+  ✗ /etc/, /boot/, /sys/, /proc/
+  ✗ Tout le reste du système
+
+En cas de doute, consultez votre enseignant.

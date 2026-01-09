@@ -1,0 +1,52 @@
+# Configuration du Ransomware Éducatif
+
+[WHITELIST]
+# Extensions de fichiers autorisées pour le chiffrement
+.txt
+.pdf
+.doc
+.docx
+.xls
+.xlsx
+.jpg
+.jpeg
+.png
+.gif
+.zip
+.tar
+.gz
+.md
+.json
+
+[BLACKLIST]
+# Chemins à exclure du chiffrement (IMPORTANT!)
+/boot/
+/etc/
+/sys/
+/proc/
+/dev/
+.git/
+.ssh/
+node_modules/
+__pycache__/
+.cache/
+
+# Fichiers système critiques
+/usr/bin/
+/usr/sbin/
+/bin/
+/sbin/
+
+# Répertoires sensibles
+/root/
+/home/.ssh/
+
+# Fichiers de configuration
+.bashrc
+.profile
+.zshrc
+
+# Notes:
+# - Les extensions dans WHITELIST doivent commencer par '.'
+# - Les chemins dans BLACKLIST sont des sous-chaînes (ex: .git/ exclut tous les dossiers .git)
+# - La blacklist est prioritaire sur la whitelist

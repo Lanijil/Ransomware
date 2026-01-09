@@ -1,0 +1,5 @@
+[2026-01-09 15:08:00] INFO: Application 1 démarrée
+[2026-01-09 15:08:00] DEBUG: Module scanner chargé
+[2026-01-09 15:08:00] INFO: Scan terminé: 65 fichiers
+[2026-01-09 15:08:00] WARNING: Fichier .git ignoré
+[2026-01-09 15:08:00] SUCCESS: Opération complétée

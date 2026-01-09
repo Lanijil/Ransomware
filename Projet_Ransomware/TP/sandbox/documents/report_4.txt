@@ -1,0 +1,9 @@
+RAPPORT CONFIDENTIEL #4
+Date: 2026-01-09
+Contenu: Données de test pour le TP ransomware
+Status: En cours d'analyse
+
+Ce fichier contient des informations de test.
+Il sera utilisé pour démontrer le chiffrement.
+Ligne de remplissage numéro 4
+Fin du rapport.

@@ -1,0 +1,16 @@
+Rapport d'Analyse de Sécurité
+=============================
+
+Ce document contient des informations importantes.
+Il servira de fichier test pour le chiffrement.
+
+Données sensibles :
+- Utilisateur: admin
+- Projet: SecureApp v2.1
+- Date: 2026-01-09
+
+Ce fichier fait environ 500 octets pour tester les buffers.
+Ligne de test supplémentaire 1
+Ligne de test supplémentaire 2
+Ligne de test supplémentaire 3
+Fin du rapport.

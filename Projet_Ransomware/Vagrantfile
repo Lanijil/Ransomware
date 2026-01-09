@@ -1,0 +1,226 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile pour TP Jour 5 - Ransomware Éducatif
+# =================================================
+# Ce Vagrantfile crée une VM Ubuntu isolée pour exécuter
+# le ransomware éducatif en toute sécurité.
+
+Vagrant.configure("2") do |config|
+  # Image Ubuntu 22.04 LTS
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.hostname = "ransomware-tp-jour5"
+
+  # Configuration réseau
+  # Option 1 : Réseau privé isolé (RECOMMANDÉ)
+  config.vm.network "private_network", ip: "192.168.58.10"
+  
+  # Option 2 : Si vous avez besoin d'accéder au serveur C2 depuis l'hôte
+  # Décommentez ces lignes pour forward les ports
+  # config.vm.network "forwarded_port", guest: 4444, host: 4444, protocol: "tcp"  # C2 Server
+  # config.vm.network "forwarded_port", guest: 5555, host: 5555, protocol: "tcp"  # Backdoor
+  
+  # IMPORTANT: Désactiver l'accès Internet (sécurité)
+  # La VM aura uniquement accès au réseau privé
+  # Pour activer temporairement Internet (installation uniquement), 
+  # commentez cette ligne lors du premier 'vagrant up'
+  # config.vm.provider "virtualbox" do |vb|
+  #   vb.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+  #   vb.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+  # end
+
+  # Configuration VirtualBox
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "TP_Ransomware_Jour5"
+    vb.memory = "2048"  # 2 GB RAM
+    vb.cpus = 2
+    
+    # GUI désactivée par défaut (mode headless)
+    vb.gui = false
+    
+    # Optimisations
+    vb.customize ["modifyvm", :id, "--vram", "16"]
+    vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+    vb.customize ["modifyvm", :id, "--accelerate3d", "off"]
+  end
+
+  # Dossier partagé : LECTURE/ÉCRITURE pour permettre la compilation
+  # Les étudiants peuvent compiler directement dans /vagrant/TP
+  config.vm.synced_folder ".", "/vagrant", 
+    owner: "vagrant", 
+    group: "vagrant"
+  
+  # Note : Le dossier /vagrant est maintenant accessible en lecture/écriture
+  # Les étudiants peuvent travailler directement dedans
+
+  # Provisioning : Installation et configuration
+  config.vm.provision "shell", inline: <<-SHELL
+    set -e
+    
+    echo "╔═══════════════════════════════════════════════════════╗"
+    echo "║  TP Jour 5 - Ransomware Éducatif - VM Setup         ║"
+    echo "╚═══════════════════════════════════════════════════════╝"
+    
+    # Mise à jour du système
+    echo "[1/6] Updating system..."
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -qq
+    
+    # Installation des dépendances
+    echo "[2/6] Installing development tools..."
+    apt-get install -y -qq \
+      gcc \
+      g++ \
+      make \
+      gdb \
+      valgrind \
+      netcat-openbsd \
+      net-tools \
+      strace \
+      ltrace \
+      tree \
+      vim \
+      git
+    
+    # Vérification des versions
+    echo "[3/6] Checking installed versions..."
+    gcc --version | head -1
+    make --version | head -1
+    
+    # Copier les fichiers TP - OPTIONNEL (les étudiants travaillent dans /vagrant/TP)
+    # Cette copie n'est plus nécessaire car /vagrant est en lecture/écriture
+    echo "[4/6] Workspace ready..."
+    echo "✓ Students can work directly in /vagrant/TP"
+    echo "✓ All files are accessible and writable"
+    
+    # Créer le sandbox dans /vagrant/TP
+    echo "[5/6] Creating sandbox environment..."
+    cd /vagrant/TP
+    if [ -f "../setup_sandbox.sh" ]; then
+      # Supprimer sandbox existant si présent
+      if [ -d "./sandbox" ]; then
+        echo "Removing existing sandbox..."
+        rm -rf ./sandbox
+      fi
+      
+      # Lancer le script de setup (génère ~50 fichiers dans /vagrant/TP/sandbox)
+      # On force l'exécution sans prompt en passant 'o' automatiquement
+      echo "o" | sudo -u vagrant bash ../setup_sandbox.sh
+      
+      if [ -d "./sandbox" ]; then
+        SANDBOX_FILES=$(find ./sandbox -type f | wc -l)
+        echo "✓ Sandbox created with $SANDBOX_FILES test files in /vagrant/TP/sandbox"
+      else
+        echo "⚠ Sandbox creation may have failed"
+      fi
+    else
+      echo "⚠ setup_sandbox.sh not found"
+    fi
+    
+    # Message de bienvenue
+    echo "[6/6] Creating welcome message..."
+    cat > /home/vagrant/.bash_aliases << 'EOF'
+# TP Jour 5 - Ransomware Éducatif
+alias tp='cd /vagrant/TP'
+alias clean='cd /vagrant/TP && make clean'
+alias build='cd /vagrant/TP && make'
+
+# Message de bienvenue
+if [ -f ~/.welcome_shown ]; then
+  :
+else
+  cat << 'WELCOME'
+
+╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║  TP JOUR 5 : RANSOMWARE ÉDUCATIF                         ║
+║  ═══════════════════════════════════                     ║
+║                                                           ║
+║  📁 Workspace : /vagrant/TP (PARTAGÉ lecture/écriture)  ║
+║  📚 Documentation : /vagrant/TP_Jour5.md                 ║
+║                                                           ║
+║  🚀 Commandes rapides :                                  ║
+║     tp          - Aller dans le dossier TP               ║
+║     build       - Compiler tous les modules              ║
+║     clean       - Nettoyer les binaires                  ║
+║                                                           ║
+║  🛡️  DÉVELOPPEMENT :                                     ║
+║  ✓ Modifiez les fichiers depuis l'hôte OU la VM         ║
+║  ✓ Compilez dans la VM avec : make                      ║
+║  ✓ Travaillez dans /vagrant/TP/test_files/ ou TP/sandbox/  ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
+
+WELCOME
+  touch ~/.welcome_shown
+fi
+EOF
+    chown vagrant:vagrant /home/vagrant/.bash_aliases
+    
+    # Créer un fichier de rappel éthique
+    cat > /vagrant/RAPPEL_SECURITE.txt << 'EOF'
+╔═══════════════════════════════════════════════════════════════╗
+║                    ⚠️  RAPPEL DE SÉCURITÉ ⚠️                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+1. Cette VM est configurée pour ISOLER le ransomware éducatif
+2. N'exécutez JAMAIS le code en dehors de /vagrant/TP/test_files/ ou TP/sandbox/
+3. La VM n'a PAS accès à Internet (sécurité)
+4. Les dossiers importants du système sont protégés
+
+ZONES AUTORISÉES :
+  ✓ /vagrant/TP/test_files/     (7 fichiers de test rapides)
+  ✓ /vagrant/TP/sandbox/         (~50 fichiers de test complets)
+  ✓ /tmp/                        (fichiers temporaires)
+
+ZONES INTERDITES :
+  ✗ /home/vagrant/ (hors TP)
+  ✗ /etc/, /boot/, /sys/, /proc/
+  ✗ Tout le reste du système
+
+En cas de doute, consultez votre enseignant.
+EOF
+    chown vagrant:vagrant /vagrant/RAPPEL_SECURITE.txt
+    
+    echo ""
+    echo "╔═══════════════════════════════════════════════════════╗"
+    echo "║  ✓ VM Setup Complete!                                ║"
+    echo "║                                                       ║"
+    echo "║  Next steps:                                         ║"
+    echo "║  1. vagrant ssh                                      ║"
+    echo "║  2. cd /vagrant/TP                                   ║"
+    echo "║  3. cat /vagrant/TP_Jour5.md                         ║"
+    echo "║  4. make                                             ║"
+    echo "╚═══════════════════════════════════════════════════════╝"
+    echo ""
+  SHELL
+
+  # Message après la création de la VM
+  config.vm.post_up_message = <<-MSG
+    ╔═══════════════════════════════════════════════════════════╗
+    ║  VM TP Ransomware Éducatif démarrée avec succès !       ║
+    ╚═══════════════════════════════════════════════════════════╝
+    
+    Pour vous connecter :
+      vagrant ssh
+    
+    Workspace partagé :
+      - Sur l'hôte : ./TP/
+      - Dans la VM : /vagrant/TP/
+    
+    Vous pouvez :
+      ✓ Éditer les fichiers depuis votre éditeur préféré (hôte)
+      ✓ Compiler et tester dans la VM
+    
+    Commandes utiles :
+      vagrant halt              - Arrêter la VM
+      vagrant up                - Démarrer la VM
+      vagrant reload            - Redémarrer la VM
+      vagrant destroy           - Supprimer la VM
+      vagrant snapshot save <name> - Créer un snapshot
+      vagrant snapshot restore <name> - Restaurer un snapshot
+    
+    📖 Documentation complète dans /vagrant/TP_Jour5.md
+    ⚠️  N'exécutez le ransomware QUE dans /vagrant/TP/test_files/ ou TP/sandbox/ !
+  MSG
+end
