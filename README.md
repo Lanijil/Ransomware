@@ -1,6 +1,6 @@
 # Ransomware
 
-## 🧩 Les 8 modules (ordre TP_Jour5.md)
+## Les 8 modules (ordre TP_Jour5.md)
 
 | # | Module | Fonctionnalité | Test menu | Statut |
 |---|--------|----------------|-----------|--------|
@@ -13,7 +13,7 @@
 | 7 | **Config** | Whitelist/Blacklist | Option 7 |
 | 8 | **C2 Client** | Communication serveur | Option 8 |
 
-## 🚀 Utilisation rapide
+## Utilisation rapide
 
 ```bash
 # Dans la VM
@@ -34,28 +34,13 @@ make clean && make         # gcc -I. -o ransomware
 
 gcc -Wall -Wextra -I. -o ransomware ransomware.c modules.c
 
-Checklist validation
-make compile sans erreur
-
-./ransomware 1 → testfiles/ → 7 fichiers
-
-./ransomware 1 → sandbox/ → 50 fichiers
-
-XOR: diff original restauré = identique
-
-César: "HELLO" → "KHOOR" (shift=3)
-
-ROT13: 2x = original
-
-CRC32: verify_integrity() = 0
-
-Objectif final
+## Objectif final
 
 ./ransomware 1 → sandbox/     # Scanner 50 fichiers
 ./ransomware 2 → encrypt      # Ransomware complet .locked
 ./ransomware 2 → decrypt      # Restaure tout
 
-⚠️ Sécurité
+## Sécurité
 
 ✅ VM isolée (host-only)
 ✅ UNIQUEMENT testfiles/ ou sandbox/
